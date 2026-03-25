@@ -28,10 +28,10 @@ class ApiService {
   async scanDoc(doc) {
     const table_response = await TableApiService.list(doc.id);
     const tables = table_response?.items || [];
+    const findings = [];
     for (const table of tables) {
       const row_response = await RowApiService.list(doc.id, table.id);
       const rows = row_response?.items || [];
-      const findings = [];
       for (const row of rows) {
         RowApiService.scanRow(doc.id, table.id, row, findings);
         if (findings.length) {

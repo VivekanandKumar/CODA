@@ -6,6 +6,8 @@ const app = express();
 
 app.use(express.json());
 app.use("/", DocRoutes);
+
+app.disable("view cache");
 app.set("view engine", "ejs");
 app.set("views", "src/views");
 

@@ -25,6 +25,9 @@ class ApiController {
   async showDashboard(req, res, next) {
     try {
       const docs = await ApiService.list();
+      res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+      res.set("Pragma", "no-cache");
+      res.set("Expires", "0");
       return res.render("Dashboard", {
         title: "Dashboard",
         docs,

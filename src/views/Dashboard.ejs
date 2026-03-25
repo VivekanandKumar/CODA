@@ -8,13 +8,12 @@
     <title><%= title %></title>
   </head>
   <body>
-    <style>
-      .unused{
-        
-      }
-    </style>
     <main class="container">
       <h2>Docs List</h2>
+      <div style="float: right;">
+        <span style="background-color: #f8d7da; width: 12px; height: 12px; display: inline-block;"></span>
+        <span>Indicates Unused Docs</span>
+      </div>
       <table class="table">
         <thead>
           <tr>
@@ -36,7 +35,7 @@
               <td>
                 <% if(doc.issue){ %>
                   <button class="btn btn-primary" onclick="handleRowDelete('<%= JSON.stringify(doc.issue) %>')">Delete Rows</button>
-                  <%}%>
+                <%}%>
               </td>
             </tr>
           <% }) %>
@@ -46,16 +45,26 @@
     <script>
       async function handleRowDelete(_issue){
         const issues = JSON.parse(_issue);
-        for (const issue of issues) {
-          await deleteRow(issue.rowId, issue.docId, issue.tableId)
+
+        try {
+          await Promise.all(
+            issues.map(issue => 
+              deleteRow(issue.rowId, issue.docId, issue.tableId)
+            )
+          );
+
+          // Force reload AFTER all deletes
+          window.location.href = '/dashboard';
+
+        } catch (err) {
+          console.error("Error deleting rows:", err);
         }
-        alert("Action Performed Successfully")
       }
 
       async function deleteRow(rowId, docId, tableId) {
         try {
           const response = await fetch(
-            `http://localhost:3001/row/${docId}/${tableId}/${rowId}`,
+            `/row/${docId}/${tableId}/${rowId}`,
             {
               method: 'DELETE',
             }
@@ -64,8 +73,10 @@
           if (!response.ok) {
             throw new Error(`Failed to delete row: ${response.status}`);
           }
+          return true;
         } catch (error) {
           console.error("Delete error:", error);
+          return true;
         }
     }
     </script>
